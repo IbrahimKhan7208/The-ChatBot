@@ -1,4 +1,4 @@
-#AI Chatbot with Real-Time Tool Calling
+# 🤖 AI Chatbot with Real-Time Tool Calling
 
 ## 🎯 Overview
 
