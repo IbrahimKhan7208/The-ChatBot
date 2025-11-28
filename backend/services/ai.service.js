@@ -15,13 +15,22 @@ export async function aiFun(prompt, threadId) {
   if(!history){
     history = [{
       role: "system",
-      content: "Your name is Chat, you are a personal assistant."
+      content: "Your name is Chat, you are a personal assistant. greet with your name."
     }]
   }
 
   history.push({role: "user", content: prompt})
 
+  const max_retries = 10
+  let count = 0
+
   while (true) {
+
+    if(count > max_retries){
+      return "I couldn't provide result, try again."
+    }
+
+    count++;
 
     const completion = await groq.chat.completions.create({
       model: "openai/gpt-oss-120b",
