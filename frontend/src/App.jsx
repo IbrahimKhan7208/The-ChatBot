@@ -22,7 +22,7 @@ const App = () => {
     setMessages((prev) => [...prev, { role: "assistant", content: "thinking", isLoading: true }]);
 
     try {
-      let textRes = await axios.post("http://localhost:3000/ai", { text: userInput, threadId });
+      let textRes = await axios.post("https://the-chatbot-backend.onrender.com/ai", { text: userInput, threadId });
 
       setMessages((prev) => {
         const newMessages = [...prev];
