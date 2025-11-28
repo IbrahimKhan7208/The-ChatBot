@@ -47,7 +47,7 @@ Built as my first comprehensive Generative AI project, demonstrating end-to-end 
 ```
 - React 18.x
 - Axios (API communication)
-- CSS3 (Styling)
+- Tailwind CSS (Styling)
 - Deployed on Render
 ```
 
