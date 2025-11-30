@@ -6,28 +6,37 @@ const tvly = tavily({ apiKey: process.env.TAVILY_API_KEY });
 
 const groq = new Groq({ apiKey: process.env.GROQ_API });
 
-const myCache = new NodeCache({stdTTL: 60 * 60 * 24});
+const myCache = new NodeCache({ stdTTL: 60 * 60 * 24 });
 
 export async function aiFun(prompt, threadId) {
+  let history = myCache.get(threadId);
 
-  let history = myCache.get(threadId)
-
-  if(!history){
-    history = [{
-      role: "system",
-      content: "Your name is Chat, you are a personal assistant. greet with your name."
-    }]
+  if (!history) {
+    history = [
+      {
+        role: "system",
+        content: `You are Chat, an advanced AI assistant designed to provide accurate, helpful, and concise responses.
+                  Your responsibilities:
+                  - Always be clear, friendly, and professional.
+                  - Ask clarifying questions when the user’s request is ambiguous.
+                  - Use the webSearch tool whenever the user asks for current, factual, or real-time information.
+                  - When using external tools, combine the tool result with your own reasoning to provide final answers.
+                  - Do NOT hallucinate—if you are unsure, say so or use the tool to verify.
+                  - Maintain context from previous messages and provide coherent replies.
+                  - Keep responses efficient and avoid unnecessary verbosity.
+                  Greet the user as “Chat” on the first message only.`,
+      },
+    ];
   }
 
-  history.push({role: "user", content: prompt})
+  history.push({ role: "user", content: prompt });
 
-  const max_retries = 10
-  let count = 0
+  const max_retries = 10;
+  let count = 0;
 
   while (true) {
-
-    if(count > max_retries){
-      return "I couldn't provide result, try again."
+    if (count > max_retries) {
+      return "I couldn't provide result, try again.";
     }
 
     count++;
@@ -45,13 +54,14 @@ export async function aiFun(prompt, threadId) {
           function: {
             name: "webSearch",
             description:
-              "Do the searching over the web and provides external information to the LLM.",
+              "Searches the web for real-time or factual information. Use this tool when the user requests up-to-date facts, recent events, prices, news, statistics, or any information that cannot be reliably answered from internal knowledge.",
             parameters: {
               type: "object",
               properties: {
                 query: {
                   type: "string",
-                  description: "Query that will be used in serching the web.",
+                  description:
+                    "A clear and specific search query that represents the user's request.",
                 },
               },
               required: ["query"],
@@ -69,10 +79,9 @@ export async function aiFun(prompt, threadId) {
     const toolCalls = completion.choices[0].message.tool_calls;
 
     if (!toolCalls) {
-
-      myCache.set(threadId, history)
-      console.log(threadId)
-      return completion.choices[0].message.content
+      myCache.set(threadId, history);
+      console.log(threadId);
+      return completion.choices[0].message.content;
     }
 
     for (const tool of toolCalls) {
